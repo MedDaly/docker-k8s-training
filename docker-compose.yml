@@ -1,0 +1,44 @@
+version: '3'
+services:
+  web:
+    build: .
+    command: python app.py
+    environment:
+      - DEBUG=1
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/code
+      - logvolume01:/var/log
+      - type: bind
+        source: /etc/config/web
+        target: /etc/config
+    depends_on:
+      - db
+    networks:
+      - mynetwork
+  db:
+    image: postgres:9.4
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - type: volume
+        source: db-data-volume
+        target: /var/lib/postgresql/data
+        volume:
+          nocopy: true
+    networks:
+      - mynetwork
+volumes:
+  db-data:
+  logvolume01:
+    driver: local
+  db-data-volume:
+    driver: local
+    external: true
+networks:
+  mynetwork:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.238.0/24
