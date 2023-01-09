@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+  - name: my-container
+    image: my-image
+    volumeMounts:
+    - name: my-host-path-volume
+      mountPath: /var/host-path
+  volumes:
+  - name: my-host-path-volume
+    hostPath:
+      # Le répertoire ou le fichier du système de l'hôte à monter dans le Pod.
+      path: /path/to/host/dir
+      # Le type de fichier du répertoire ou du fichier du système de l'hôte.
+      # Valeurs possibles : Directory, File, Socket, CharDevice, BlockDevice.
+      # Valeur par défaut : File.
+      type: Directory
+      # Optionnel : spécifie si le répertoire ou le fichier du système de l'hôte doit être créé s'il n'existe pas.
+      # Valeurs possibles : true, false.
+      # Valeur par défaut : false.
+      create: true

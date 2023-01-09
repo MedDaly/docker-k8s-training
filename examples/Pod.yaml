@@ -1,0 +1,133 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+  namespace: default
+  labels:
+    app: my-app
+  annotations: # What is this ?
+    key1: value1
+    key2: value2
+spec:
+  # Advanced
+  restartPolicy: Always
+  terminationGracePeriodSeconds: 30
+  activeDeadlineSeconds: 3600
+  dnsPolicy: ClusterFirst
+  hostname: my-host
+  subdomain: my-subdomain
+  nodeName: my-node
+  serviceAccountName: my-service-account
+  automountServiceAccountToken: true
+  # Selection des noeuds ? pas au début
+  nodeSelector:
+    key1: value1
+    key2: value2
+  # Advanced
+  hostNetwork: true
+  hostPID: true
+  hostIPC: true
+  securityContext:
+    runAsUser: 1000
+    fsGroup: 2000
+  # Too complex
+  tolerations:
+  - key: "key1"
+    operator: "Equal"
+    value: "value1"
+    effect: "NoExecute"
+  - key: "key2"
+    operator: "Exists"
+    effect: "NoSchedule"
+  # Commande pour initiliser des conteneurs / On mets ça dans le Dockerfile c'est mieux j'imagine
+  initContainers:
+  - name: init-container-1
+    image: init-container-1:latest
+    command: ["/bin/bash"]
+    args: ["-c", "echo hello world"]
+  - name: init-container-2
+    image: init-container-2:latest
+    command: ["/bin/bash"]
+    args: ["-c", "echo hello world"]
+  # Inclus
+  containers:
+  - name: my-container
+    image: my-image:latest
+    command: ["/bin/bash"]
+    args: ["-c", "echo hello world"]
+    # Variables d'environnemens dans Kubernetes
+    env:
+    - name: ENV_VAR_1
+      value: "value1"
+    - name: ENV_VAR_2
+      value: "value2"
+    envFrom:
+    - secretRef:
+        name: my-secret
+    # Gérer les ressources
+    resources:
+      limits:
+        cpu: "1"
+        memory: "1Gi"
+      requests:
+        cpu: "0.5"
+        memory: "512Mi"
+    # Montage des Volumes - Volume et K8S
+    volumeMounts:
+    - name: my-volume
+      mountPath: /data
+    # la façon donc le Pod est géré - too complex
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: 8080
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      successThreshold: 1
+      failureThreshold: 3
+    # la façon donc le Pod est géré - too complex
+    readinessProbe:
+      tcpSocket:
+        port: 8080
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      successThreshold: 1
+      failureThreshold: 3
+    # Advanced
+    lifecycle:
+      postStart:
+        exec:
+          command: ["/bin/bash"]
+          args: ["-c", "echo hello world"]
+      preStop:
+        exec:
+          command: ["/bin/bash"]
+          args: ["-c", "echo hello world"]
+    # Advanced - Securité sur K8S
+    securityContext:
+      privileged: true
+      capabilities:
+        add: ["NET_ADMIN"]
+  # Volume dans le Pod - Avec les différents types de Volume - à explorer
+  volumes:
+  - name: my-volume
+    hostPath:
+      path: /data
+    emptyDir: {}
+    configMap:
+      name: my-config-map
+    secret:
+      secretName: my-secret
+    persistentVolumeClaim:
+      claimName: my-pvc
+    projected:
+      sources:
+      - secret:
+          name: my-secret
+        defaultMode: 420
+      - configMap:
+          name: my-config-map
+        defaultMode: 420
+
