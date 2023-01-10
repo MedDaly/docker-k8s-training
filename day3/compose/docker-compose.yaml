@@ -1,0 +1,10 @@
+version: '3'
+services:
+  my-notes-app:
+    image: notes-app:v3
+    build: .
+    command: python app.py
+    ports:
+      - "5000:80"
+  my-db:
+    image: notes-db

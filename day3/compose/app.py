@@ -8,20 +8,27 @@ import json
 import logging
 import mysql.connector
 
-NOTES_PATH = Path("notes.txt")
+LOG_FILE = Path("logs", "flask.log")
+LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
+LOG_FILE.touch(exist_ok=True)
 
 hostname = socket.gethostname()
 
 app = Flask(__name__)
 
+# Set up a file handler
+file_handler = logging.FileHandler(LOG_FILE)
+file_handler.setLevel(logging.DEBUG)
+app.logger.addHandler(file_handler)
+
 gunicorn_error_logger = logging.getLogger('gunicorn.error')
 app.logger.handlers.extend(gunicorn_error_logger.handlers)
+
 app.logger.setLevel(logging.INFO)
 
 # DB connection parameters
 CONN_PARAMS = {
-    #"host": "host.docker.internal",
-    #"host": "localhost",
+    # "host": "localhost",
     "host": "my-db",
     "port": 3306,
     "user": "root",
@@ -35,6 +42,7 @@ def read_notes():
         cursor.execute("SELECT * FROM NOTES")
         all_notes = cursor.fetchall()
     notes = [row['note'] for row in all_notes]
+    app.logger.info(f"The total number of notes is {len(notes)}")
     return notes
 
 def add_note(note):
@@ -43,6 +51,7 @@ def add_note(note):
         cursor = conn.cursor()
         cursor.execute(f'INSERT INTO NOTES (note) VALUES ("{note}")')
         conn.commit()
+    app.logger.info('Received new note : %s', note)
 
 @app.route("/", methods=['POST','GET'])
 def main():
@@ -54,7 +63,6 @@ def main():
 
     if request.method == 'POST':
         note = request.form['note']
-        app.logger.info('Received new note : %s', note)
         add_note(note)
         message = "Note Saved !!"
 

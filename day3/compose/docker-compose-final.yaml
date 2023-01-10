@@ -1,0 +1,27 @@
+version: '3'
+services:
+  my-notes-app:
+    image: notes-app:v3
+    build: .
+    command: python app.py
+    ports:
+      - "5000:80"
+    volumes:
+      - log-volume:/app/logs
+    networks:
+      - notes-network
+    depends_on:
+      - my-db
+  my-db:
+    image: notes-db
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - notes-network
+volumes:
+  db-data:
+  log-volume:
+    driver: local
+networks:
+  notes-network:
+    driver: bridge
