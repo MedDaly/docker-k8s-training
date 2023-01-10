@@ -6,6 +6,7 @@ import socket
 import random
 import json
 import logging
+import mysql.connector
 
 NOTES_PATH = Path("notes.txt")
 
@@ -17,20 +18,28 @@ gunicorn_error_logger = logging.getLogger('gunicorn.error')
 app.logger.handlers.extend(gunicorn_error_logger.handlers)
 app.logger.setLevel(logging.INFO)
 
-def read_notes(path_):
-    with open(path_, 'r') as f:
-        lines = f.readlines()
-    notes = [line.strip('\n') for line in lines]
+# DB connection parameters
+CONN_PARAMS = {
+    "host": "host.docker.internal:3306",
+    "user": "root",
+    "password": "admin",
+    "database": "notesdb"
+}
+
+def read_notes():
+    with mysql.connector.connect(**CONN_PARAMS) as conn:
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM NOTES")
+        all_notes = cursor.fetchall()
+    notes = [row['note'] for row in all_notes]
     return notes
 
-def add_note(note, path_):
+def add_note(note):
     note = note.strip('\n')
-    if path_.exists():
-        with open(path_, 'a') as f:
-            f.write(note+'\n')
-    else:
-        with open(path_, 'w') as f:
-            f.write(note+'\n')
+    with mysql.connector.connect(**CONN_PARAMS) as conn:
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO NOTES (note) VALUES %s", note)
+        conn.commit()
 
 @app.route("/", methods=['POST','GET'])
 def main():
@@ -43,7 +52,7 @@ def main():
     if request.method == 'POST':
         note = request.form['note']
         app.logger.info('Received new note : %s', note)
-        add_note(note, NOTES_PATH)
+        add_note(note)
         message = "Note Saved !!"
 
     resp = make_response(render_template(

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Notes App</title>
+    <base href="/index.html">
+    <meta name = "viewport" content = "width=device-width, initial-scale = 1.0">
+    <meta name="keywords" content="docker-compose, docker, stack">
+    <link rel='stylesheet' href="{{ url_for('static',filename='stylesheets/style.css') }}" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+  </head>
+  <body>
+    <div id="content-container">
+      <div id="content-container-center">
+        <form id="note-form" name='form' method="GET" action="/">
+          <button id="Adding Notes" name="change_page", class="back">Back to adding notes</button>
+        </form>
+        <h3>Notes List</h3>
+        <ul>
+          {% for note in notes_list %}
+            <li>{{ note }}</li>
+          {% endfor %}
+        </ul>
+        <div id="hostname">
+          Processed by container ID {{hostname}}
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
