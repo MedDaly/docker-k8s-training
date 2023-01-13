@@ -26,10 +26,13 @@ app.logger.handlers.extend(gunicorn_error_logger.handlers)
 
 app.logger.setLevel(logging.INFO)
 
+DB_HOST = os.getenv("DB_HOST", "my-db")
+
 # DB connection parameters
 CONN_PARAMS = {
-    # "host": "localhost",
-    "host": "my-db",
+    #"host": "localhost",
+    #"host": "my-db",
+    "host": DB_HOST,
     "port": 3306,
     "user": "root",
     "password": "admin",

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: notes-service-cluster-ip
+spec:
+  selector:
+    app: notes
+  ports:
+  - port: 5000
+    targetPort: 80
+  type: ClusterIP

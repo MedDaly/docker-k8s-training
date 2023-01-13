@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: notes
+      type: db
+  template:
+    metadata:
+      labels:
+        app: notes
+        type: db
+    spec:
+      containers:
+      - name: db
+        image: eddeli/notes-db
+        volumeMounts:
+        - name: data-volume
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: data-pvc
+  strategy:
+    type: RollingUpdate

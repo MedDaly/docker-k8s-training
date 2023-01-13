@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notes
+      type: db
+  template:
+    metadata:
+      labels:
+        app: notes
+        type: db
+    spec:
+      containers:
+      - name: db
+        image: eddeli/notes-db
+  strategy:
+    type: RollingUpdate

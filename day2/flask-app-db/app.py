@@ -18,11 +18,14 @@ gunicorn_error_logger = logging.getLogger('gunicorn.error')
 app.logger.handlers.extend(gunicorn_error_logger.handlers)
 app.logger.setLevel(logging.INFO)
 
+DB_HOST = os.getenv("DB_HOST", "my-db")
+
 # DB connection parameters
 CONN_PARAMS = {
     #"host": "host.docker.internal",
     #"host": "localhost",
-    "host": "my-db",
+    #"host": "my-db",
+    "host": DB_HOST,
     "port": 3306,
     "user": "root",
     "password": "admin",
