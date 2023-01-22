@@ -1,1 +1,1 @@
-Empty directory for the labs
+Empty directory for labs
