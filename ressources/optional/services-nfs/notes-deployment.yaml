@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notes-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: notes
+      type: web
+  template:
+    metadata:
+      labels:
+        app: notes
+        type: web
+    spec:
+      containers:
+      - name: notes
+        image: eddeli/notes-app-db
+        env:
+        - name: DB_HOST
+          value: db-service
+        volumeMounts:
+        - name: logs-volume
+          mountPath: /app/logs
+      # volumes:
+      # - name: logs-volume
+      #   emptyDir:
+      #     sizeLimit: 1Gi
+      volumes:
+      - name: logs-volume
+        hostPath:
+          path: /opt
+          type: Directory
+
+  strategy:
+    type: RollingUpdate
